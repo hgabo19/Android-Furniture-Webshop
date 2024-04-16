@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Furniture Webshop</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="registration">Registration</string>
+    <string name="email_address">Email address</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="cancel">Cancel</string>
+    <string name="welcome_please_log_in">Welcome, please log in!</string>
+</resources>
