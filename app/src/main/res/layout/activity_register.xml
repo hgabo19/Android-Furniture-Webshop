@@ -90,6 +90,7 @@
             android:layout_height="wrap_content"
             android:onClick="register"
             android:text="@string/register"
+            android:textSize="23sp"
             app:layout_constraintTop_toBottomOf="@+id/passwordConfirmEditText" />
 
         <Button
