@@ -9,4 +9,39 @@
     <string name="confirm_password">Confirm password</string>
     <string name="cancel">Cancel</string>
     <string name="welcome_please_log_in">Welcome, please log in!</string>
+    <string name="product_name">Product name</string>
+    <string name="product_description">Product description</string>
+    <string name="price">Price</string>
+    <string name="add_to_cart">Add to cart</string>
+    <string name="log_in_as_guest">Log in as guest</string>
+    <string name="already_registered">Already registered?</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="cart">Cart</string>
+    <string name="searchbar">Searchbar</string>
+
+    <string-array name="furniture_item_name">
+        <item>Something one</item>
+        <item>Something two</item>
+        <item>Something three</item>
+        <item>Something four</item>
+    </string-array>
+    <string-array name="furniture_item_description">
+        <item>Desc one</item>
+        <item>Desc two</item>
+        <item>Desc three</item>
+        <item>Desc four</item>
+    </string-array>
+    <array name="furniture_item_price">
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+        <item>250</item>
+    </array>
+    <array name="furniture_item_image">
+        <item>@drawable/hm</item>
+        <item>@drawable/sus1</item>
+        <item>@drawable/sus2</item>
+        <item>@drawable/erenbadass</item>
+    </array>
 </resources>

@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -41,7 +43,11 @@ public class FurnitureItemAdapter extends RecyclerView.Adapter<FurnitureItemAdap
         FurnitureItem currentItem = furnitureItems.get(position);
 
         holder.bindTo(currentItem);
-
+        if(holder.getAdapterPosition() > lastPos) {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in);
+            holder.itemView.startAnimation(animation);
+            lastPos = holder.getAdapterPosition();
+        }
     }
 
     @Override
@@ -96,10 +102,12 @@ public class FurnitureItemAdapter extends RecyclerView.Adapter<FurnitureItemAdap
             descriptionText = itemView.findViewById(R.id.product_description);
             priceText = itemView.findViewById(R.id.product_price);
             itemImage = itemView.findViewById(R.id.product_image);
+
             itemView.findViewById(R.id.addToCart).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.d("Activity", "Button clicked!");
+                    ((FurnitureListActivity) context).updateIcon();
                 }
             });
         }
@@ -108,6 +116,7 @@ public class FurnitureItemAdapter extends RecyclerView.Adapter<FurnitureItemAdap
             nameText.setText(currentItem.getName());
             descriptionText.setText(currentItem.getDescription());
             priceText.setText(currentItem.getPrice());
+
             Glide.with(context).load(currentItem.getImageResource()).into(itemImage);
         }
     }

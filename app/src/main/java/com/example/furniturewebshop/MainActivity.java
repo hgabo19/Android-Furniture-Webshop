@@ -6,12 +6,19 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
@@ -19,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFERENCES_KEY = MainActivity.class.getPackage().toString();
     EditText usernameET;
     EditText passwordET;
+    private FirebaseAuth fireAuth;
 
     private SharedPreferences preferences;
     @Override
@@ -36,18 +44,33 @@ public class MainActivity extends AppCompatActivity {
         passwordET = findViewById(R.id.EditTextPassword);
 
         preferences = getSharedPreferences(PREFERENCES_KEY, MODE_PRIVATE);
+        fireAuth = FirebaseAuth.getInstance();
     }
 
     public void login(View view) {
         String username = usernameET.getText().toString();
         String password = passwordET.getText().toString();
 
-        Log.i(TAG, "User login: " + username);
+        fireAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()){
+                    navigateToFurnitureList();
+                } else {
+                    Toast.makeText(MainActivity.this, "Login failed"  + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     public void register(View view) {
         Intent intent = new Intent(this, RegisterActivity.class);
         intent.putExtra("SECRET_KEY", SECRET_KEY);
+        startActivity(intent);
+    }
+
+    public void navigateToFurnitureList(){
+        Intent intent = new Intent(this, FurnitureListActivity.class);
         startActivity(intent);
     }
 
