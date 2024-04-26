@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
                     navigateToFurnitureList();
+//                    Toast.makeText(MainActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Login failed"  + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -101,5 +102,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    public void guestLogin(View view) {
+        fireAuth.signInAnonymously().addOnCompleteListener(this, task -> {
+            if(task.isSuccessful()){
+//                Log.d(LOG_TAG, "Anonym user loged in successfully");
+                navigateToFurnitureList();
+            } else {
+//                Log.d(LOG_TAG, "Anonym user log in fail");
+                Toast.makeText(MainActivity.this, "User log in fail: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

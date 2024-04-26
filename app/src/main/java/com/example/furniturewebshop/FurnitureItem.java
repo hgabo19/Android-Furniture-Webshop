@@ -3,10 +3,12 @@ package com.example.furniturewebshop;
 public class FurnitureItem {
     private String name;
     private String description;
-    private int price;
-    private final int imageResource;
+    private String price;
+    private int imageResource;
 
-    public FurnitureItem(String name, String description, int price, int imageResource) {
+    public FurnitureItem() {}
+
+    public FurnitureItem(String name, String description, String price, int imageResource) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -21,7 +23,7 @@ public class FurnitureItem {
         return description;
     }
 
-    public int getPrice() {
+    public String getPrice() {
         return price;
     }
 

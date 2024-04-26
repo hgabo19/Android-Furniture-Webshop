@@ -41,7 +41,6 @@ public class FurnitureItemAdapter extends RecyclerView.Adapter<FurnitureItemAdap
     @Override
     public void onBindViewHolder(FurnitureItemAdapter.ViewHolder holder, int position) {
         FurnitureItem currentItem = furnitureItems.get(position);
-
         holder.bindTo(currentItem);
         if(holder.getAdapterPosition() > lastPos) {
             Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in);

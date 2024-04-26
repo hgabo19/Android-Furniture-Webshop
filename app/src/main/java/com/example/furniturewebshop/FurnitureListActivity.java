@@ -19,8 +19,13 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
@@ -34,6 +39,9 @@ public class FurnitureListActivity extends AppCompatActivity {
     private FrameLayout circle;
     private int cartItems = 0;
 
+    private FirebaseFirestore mFirestore;
+    private CollectionReference mItems;
+
     private static final String LOG_TAG = FurnitureListActivity.class.getName();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +54,10 @@ public class FurnitureListActivity extends AppCompatActivity {
             return insets;
         });
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
         fireAuth = FirebaseAuth.getInstance();
-
+        user = fireAuth.getCurrentUser();
         if (user != null) {
-            Log.d(LOG_TAG, "Auth user");
+            Log.d(LOG_TAG, "Auth user " + user.getUid());
         } else {
             Log.d(LOG_TAG, "Unauthenticated user");
             finish();
@@ -63,23 +70,46 @@ public class FurnitureListActivity extends AppCompatActivity {
         furnitureAdapter = new FurnitureItemAdapter(this, furnitureList);
         recyclerView.setAdapter(furnitureAdapter);
 
-        initalizeData();
+        mFirestore = FirebaseFirestore.getInstance();
+        mItems = mFirestore.collection("Items");
+
+        // itt a hiba
+        queryData();
+//        initalizeData();
+    }
+
+    private void queryData(){
+        furnitureList.clear();
+        mItems.orderBy("price").limit(5).get().addOnSuccessListener(queryDocumentSnapshots -> {
+            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                FurnitureItem item = document.toObject(FurnitureItem.class);
+                furnitureList.add(item);
+            }
+            if(furnitureList.isEmpty()) {
+                initalizeData();
+                queryData();
+            }
+            furnitureAdapter.notifyDataSetChanged();
+        });
     }
 
     private void initalizeData() {
         String[] furnitureNames = getResources().getStringArray(R.array.furniture_item_name);
         String[] furnitureDescriptions = getResources().getStringArray(R.array.furniture_item_description);
-        TypedArray furniturePrices = getResources().obtainTypedArray(R.array.furniture_item_price);
+        String[] furniturePrices = getResources().getStringArray(R.array.furniture_item_price);
 
         TypedArray furnitureImageResources = getResources().obtainTypedArray(R.array.furniture_item_image);
-        this.furnitureList.clear();
 
         for (int i = 0; i < furnitureNames.length; i++){
-            this.furnitureList.add(new FurnitureItem(furnitureNames[i], furnitureDescriptions[i], furniturePrices.getResourceId(i, 0), furnitureImageResources.getResourceId(i, 0)));
+            mItems.add(new FurnitureItem(
+                    furnitureNames[i],
+                    furnitureDescriptions[i],
+                    furniturePrices[i],
+                    furnitureImageResources.getResourceId(i, 0)));
         }
 
         furnitureImageResources.recycle();
-        furnitureAdapter.notifyDataSetChanged();
+
     }
 
     @Override
@@ -105,23 +135,6 @@ public class FurnitureListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.logout_button:
-//                Log.d("Activity", "Logout clicked");
-//                FirebaseAuth.getInstance().signOut();
-//                finish();
-//                return true;
-//            case R.id.cart:
-//                Log.d("Activity", "Cart clicked");
-//                return true;
-//            case R.id.settings_button:
-//                Log.d("Activity", "Settings clicked");
-//                return true;
-//            default:
-//        }
-//        switch (item.getItemId()) {
-//            case R.
-//        }
         if(item.getItemId() == R.id.cart) {
             Log.d("Activity", "Cart clicked");
           return true;

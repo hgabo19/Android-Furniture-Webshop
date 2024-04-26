@@ -32,12 +32,12 @@
         <item>Desc three</item>
         <item>Desc four</item>
     </string-array>
-    <array name="furniture_item_price">
+    <string-array name="furniture_item_price">
         <item>100</item>
         <item>150</item>
         <item>200</item>
         <item>250</item>
-    </array>
+    </string-array>
     <array name="furniture_item_image">
         <item>@drawable/hm</item>
         <item>@drawable/sus1</item>
