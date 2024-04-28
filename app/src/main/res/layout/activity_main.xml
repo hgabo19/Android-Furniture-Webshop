@@ -7,15 +7,16 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <include layout="@layout/toolbar_layout"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/welcome_please_log_in"
         android:textAlignment="center"
         android:textSize="28sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.054"
+        app:layout_constraintBottom_toTopOf="@+id/EditTextUsername"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         tools:layout_editor_absoluteX="0dp" />
 
     <EditText
@@ -51,8 +52,10 @@
 
     <Button
         android:id="@+id/loginButton"
-        android:layout_width="119dp"
-        android:layout_height="65dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="40dp"
         android:textSize="25sp"
         android:text="@string/login"
         android:onClick="login"
@@ -64,8 +67,9 @@
 
     <Button
         android:id="@+id/registerButton"
-        android:layout_width="146dp"
-        android:layout_height="64dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingVertical="14dp"
         android:onClick="register"
         android:text="@string/register"
         android:textSize="25sp"
@@ -78,7 +82,8 @@
     <Button
         android:id="@+id/guestLoginButton"
         android:layout_width="wrap_content"
-        android:layout_height="65dp"
+        android:layout_height="wrap_content"
+        android:paddingVertical="15dp"
         android:onClick="guestLogin"
         android:text="@string/log_in_as_guest"
         android:textSize="22sp"
@@ -88,4 +93,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/registerButton"
         app:layout_constraintVertical_bias="0.36" />
+
+<!--    <androidx.appcompat.widget.Toolbar-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:id="@+id/toolbar"-->
+<!--        android:background="?attr/colorPrimary"-->
+<!--        android:elevation="4dp"-->
+<!--        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"-->
+<!--        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"-->
+<!--        tools:ignore="MissingConstraints" />-->
+
 </androidx.constraintlayout.widget.ConstraintLayout>

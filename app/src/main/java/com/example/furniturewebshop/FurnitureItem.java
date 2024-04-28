@@ -1,6 +1,7 @@
 package com.example.furniturewebshop;
 
 public class FurnitureItem {
+    private String id;
     private String name;
     private String description;
     private String price;
@@ -30,4 +31,14 @@ public class FurnitureItem {
     public int getImageResource() {
         return imageResource;
     }
+
+    public String _getId(){
+        return id;
+    }
+
+    public void setId(String id){
+        this.id = id;
+    }
+
+
 }

@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    android:background="@color/lightgray"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,13 +17,12 @@
 
         <ImageView
             android:id="@+id/product_image"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"/>
-<!--            android:scaleType="centerCrop"-->
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"/>
 
-<!--            android:src="@drawable/placeholder_image"-->
-<!--            android:contentDescription="@string/product_image" />-->
+<!--            android:src="@drawableion="@string/product_image" />-->
 
         <TextView
             android:id="@+id/product_name"
@@ -41,16 +42,28 @@
             app:layout_constraintTop_toBottomOf="@+id/product_name"
             android:text="@string/product_description"
             android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/product_price"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/product_description"
-            android:text="@string/price"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_gravity="end"
+            >
+            <TextView
+                android:id="@+id/product_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                app:layout_constraintTop_toBottomOf="@+id/product_description"
+                android:text="@string/price"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$ (USD)"
+                android:textSize="18sp"
+                />
+        </LinearLayout>
 
         <Button
             android:id="@+id/addToCart"
@@ -60,7 +73,17 @@
             android:textSize="16sp"
             android:layout_gravity="center"
             app:layout_constraintTop_toBottomOf="@+id/product_price"
-            android:text="@string/add_to_cart"
+            android:text="@string/buy"
+            />
+        <Button
+            android:id="@+id/deleteFromCart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"
+            android:layout_gravity="center"
+            app:layout_constraintTop_toBottomOf="@+id/addToCart"
+            android:text="@string/delete"
             />
 
     </LinearLayout>

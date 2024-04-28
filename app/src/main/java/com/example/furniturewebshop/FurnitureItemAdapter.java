@@ -102,13 +102,6 @@ public class FurnitureItemAdapter extends RecyclerView.Adapter<FurnitureItemAdap
             priceText = itemView.findViewById(R.id.product_price);
             itemImage = itemView.findViewById(R.id.product_image);
 
-            itemView.findViewById(R.id.addToCart).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("Activity", "Button clicked!");
-                    ((FurnitureListActivity) context).updateIcon();
-                }
-            });
         }
 
         public void bindTo(FurnitureItem currentItem) {
@@ -117,6 +110,20 @@ public class FurnitureItemAdapter extends RecyclerView.Adapter<FurnitureItemAdap
             priceText.setText(currentItem.getPrice());
 
             Glide.with(context).load(currentItem.getImageResource()).into(itemImage);
+
+
+            itemView.findViewById(R.id.addToCart).setOnClickListener(view -> {
+                    Log.d("Activity", "Add to cart clicked!");
+                    ((FurnitureListActivity) context).addToCart(currentItem);
+//                    ((FurnitureListActivity) context).updateIconAddition();
+                }
+            );
+
+            itemView.findViewById(R.id.deleteFromCart).setOnClickListener(view -> {
+                Log.d("Activity", "Remove from cart clicked!");
+                ((FurnitureListActivity) context).deleteFromCart(currentItem);
+//                ((FurnitureListActivity) context).updateIconSubtraction();
+            });
         }
     }
 }

@@ -1,17 +1,23 @@
 package com.example.furniturewebshop;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.MenuItemCompat;
 import androidx.core.view.ViewCompat;
@@ -19,13 +25,20 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 
@@ -41,6 +54,11 @@ public class FurnitureListActivity extends AppCompatActivity {
 
     private FirebaseFirestore mFirestore;
     private CollectionReference mItems;
+    private CollectionReference mCartItems;
+
+    private AlarmManager mAlarmManager;
+
+    private PendingIntent mPendingIntent;
 
     private static final String LOG_TAG = FurnitureListActivity.class.getName();
     @Override
@@ -72,17 +90,25 @@ public class FurnitureListActivity extends AppCompatActivity {
 
         mFirestore = FirebaseFirestore.getInstance();
         mItems = mFirestore.collection("Items");
+        mCartItems = mFirestore.collection("CartItems");
+        fireAuth = FirebaseAuth.getInstance();
 
-        // itt a hiba
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         queryData();
-//        initalizeData();
+
+//        mNotifyHandler = new NotificationHandler(this);
+        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
     }
 
     private void queryData(){
         furnitureList.clear();
-        mItems.orderBy("price").limit(5).get().addOnSuccessListener(queryDocumentSnapshots -> {
+        mItems.orderBy("price", Query.Direction.ASCENDING).limit(5).get().addOnSuccessListener(queryDocumentSnapshots -> {
             for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                 FurnitureItem item = document.toObject(FurnitureItem.class);
+                item.setId(document.getId());
                 furnitureList.add(item);
             }
             if(furnitureList.isEmpty()) {
@@ -153,7 +179,91 @@ public class FurnitureListActivity extends AppCompatActivity {
         }
     }
 
+    public void deleteFromCart(FurnitureItem item){
+        DocumentReference ref = mItems.document(item._getId());
+        ref.delete().addOnSuccessListener(success -> {
+            Toast.makeText(this, "Item deleted!", Toast.LENGTH_LONG).show();
+        }).addOnFailureListener(failure -> {
+            Toast.makeText(this, "Failed to delete item.. please try again!", Toast.LENGTH_LONG).show();
+        });
 
+    }
+
+    public void addToCart(FurnitureItem item){
+        if (user != null && !user.isAnonymous()) {
+            String itemId = item._getId();
+            String userId = user.getUid();
+            Log.d(LOG_TAG, "item Id :" + itemId);
+            Log.d(LOG_TAG, "User Id :" + userId);
+
+            Query query = mCartItems.whereEqualTo("itemId", itemId).whereEqualTo("userId", userId);
+            query.get().addOnSuccessListener(queryDocumentSnapshots -> {
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                    // Run transaction using document reference
+                    mFirestore.runTransaction(transaction -> {
+                        DocumentSnapshot snapshot = transaction.get(document.getReference());
+                        if (snapshot.exists()) {
+                            int currentCartCount = snapshot.getLong("cartCount").intValue() + 1;
+                            transaction.update(snapshot.getReference(), "cartCount", currentCartCount);
+                            updateIconAddition(); // Call after successful update
+                        }
+                        return null;
+                    }).addOnCompleteListener(transactionTask -> {
+                        if (!transactionTask.isSuccessful()) {
+                            // Handle transaction errors
+                            Log.w("Firestore", "Transaction failed.", transactionTask.getException());
+                        }
+                    });
+                } else {
+                    // If document doesn't exist, create a new one
+                    CartItem cartItem = new CartItem(itemId, userId, 1);
+                    mCartItems.add(cartItem)
+                            .addOnSuccessListener(documentReference -> {
+                                // Item added successfully
+                                updateIconAddition();
+                            })
+                            .addOnFailureListener(e -> {
+                                // Handle failure
+                                Log.e(LOG_TAG, "Error adding item to cart", e);
+                            });
+                }
+            }).addOnFailureListener(e -> {
+                // Handle failure
+                Log.e(LOG_TAG, "Error getting document reference", e);
+            });
+
+
+//            mCartItems.whereEqualTo("itemId", itemId).whereEqualTo("userId", userId)
+//                    .get().addOnCompleteListener(task -> {
+//                        // update item
+//                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+//                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+//                            int currentCartCount = document.getLong("cartCount").intValue() + 1;
+//                            mCartItems.document(document.getId()).update("cartCount", currentCartCount)
+//                                    .addOnCompleteListener(updateTask -> {
+//                                        if (updateTask.isSuccessful()) {
+//                                            updateIconAddition();
+//                                        } else {
+//                                            // Handle update errors
+//                                            Log.w("Firestore", "Update failed.", updateTask.getException());
+//                                        }
+//                            });
+//                        }
+////                         add new item
+//                        else if(task.isSuccessful() && task.getResult().isEmpty()) {
+//                            CartItem cartItem = new CartItem(item._getId(), user.getUid(), 1);
+//                            mCartItems.add(cartItem);
+//                        }
+//                    });
+//        mItems.document(item._getId()).update("cartCount", item.getCartCount() + 1)
+//                .addOnFailureListener(failure -> {
+//                    Toast.makeText(this, "Failed to add item to cart.", Toast.LENGTH_LONG).show();
+//                });
+        } else {
+            Toast.makeText(this, "Please login to add items to your cart!", Toast.LENGTH_LONG).show();
+        }
+    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -170,10 +280,33 @@ public class FurnitureListActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    public void updateIcon() {
+    public void updateIconAddition() {
         cartItems = cartItems + 1;
         if(cartItems > 0) {
             circle.setVisibility(View.VISIBLE);
+            setAlarmManager();
         }
+    }
+
+    public void updateIconSubtraction() {
+        cartItems = cartItems - 1;
+        if(cartItems <= 0) {
+            circle.setVisibility(View.GONE);
+            mAlarmManager.cancel(mPendingIntent);
+        }
+    }
+
+    private void setAlarmManager (){
+        long repeatInterval = 40000;
+        long triggerTime = SystemClock.elapsedRealtime() + repeatInterval;
+
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        mPendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mAlarmManager.setInexactRepeating(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                triggerTime,
+                repeatInterval,
+                mPendingIntent);
     }
 }
