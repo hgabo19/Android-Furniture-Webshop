@@ -1,6 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
     <FrameLayout
         android:layout_width="32dp"
         android:layout_height="32dp"
@@ -19,6 +20,15 @@
             android:layout_marginRight="1dp"
             android:layout_gravity="top|end"
             android:background="@drawable/circle"
-            android:visibility="gone" />
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/cart_count_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                tools:text="3"/>
+        </FrameLayout>
     </FrameLayout>
 </FrameLayout>

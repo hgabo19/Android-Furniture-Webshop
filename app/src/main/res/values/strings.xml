@@ -22,27 +22,43 @@
     <string name="delete">Delete</string>
 
     <string-array name="furniture_item_name">
-        <item>Something one</item>
-        <item>Something two</item>
-        <item>Something three</item>
-        <item>Something four</item>
+        <item>TECTA</item>
+        <item>COBEA</item>
+        <item>CLOCKWISE</item>
+        <item>HARRY</item>
+        <item>BREEZE</item>
+        <item>EAMES DESK UNIT EDU</item>
+        <item>MIRIA+</item>
+        <item>REVO HIGH</item>
     </string-array>
     <string-array name="furniture_item_description">
-        <item>Desc one</item>
-        <item>Desc two</item>
-        <item>Desc three</item>
-        <item>Desc four</item>
+        <item>Upholstered chair with armrests</item>
+        <item>Teak garden chair with armrests</item>
+        <item>Marble table</item>
+        <item>Round wooden coffee table</item>
+        <item>Round powder coated steel garden side table</item>
+        <item>Rectangular aluminium and wood writing desk with bookcase</item>
+        <item>Wardrobe</item>
+        <item>Solid wood highboard with drawers</item>
     </string-array>
     <string-array name="furniture_item_price">
-        <item>100</item>
-        <item>150</item>
-        <item>200</item>
         <item>250</item>
+        <item>300</item>
+        <item>500</item>
+        <item>450</item>
+        <item>600</item>
+        <item>1000</item>
+        <item>1900</item>
+        <item>1700</item>
     </string-array>
     <array name="furniture_item_image">
-        <item>@drawable/hm</item>
-        <item>@drawable/sus1</item>
-        <item>@drawable/sus2</item>
-        <item>@drawable/erenbadass</item>
+        <item>@drawable/chair</item>
+        <item>@drawable/chair2</item>
+        <item>@drawable/clockwise</item>
+        <item>@drawable/coffetable</item>
+        <item>@drawable/table2</item>
+        <item>@drawable/edudesk</item>
+        <item>@drawable/mobelhandwerk</item>
+        <item>@drawable/szekreny2</item>
     </array>
 </resources>

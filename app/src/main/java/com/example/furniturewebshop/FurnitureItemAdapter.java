@@ -16,6 +16,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.w3c.dom.Text;
 
@@ -108,21 +113,17 @@ public class FurnitureItemAdapter extends RecyclerView.Adapter<FurnitureItemAdap
             nameText.setText(currentItem.getName());
             descriptionText.setText(currentItem.getDescription());
             priceText.setText(currentItem.getPrice());
-
             Glide.with(context).load(currentItem.getImageResource()).into(itemImage);
-
 
             itemView.findViewById(R.id.addToCart).setOnClickListener(view -> {
                     Log.d("Activity", "Add to cart clicked!");
                     ((FurnitureListActivity) context).addToCart(currentItem);
-//                    ((FurnitureListActivity) context).updateIconAddition();
                 }
             );
 
             itemView.findViewById(R.id.deleteFromCart).setOnClickListener(view -> {
                 Log.d("Activity", "Remove from cart clicked!");
                 ((FurnitureListActivity) context).deleteFromCart(currentItem);
-//                ((FurnitureListActivity) context).updateIconSubtraction();
             });
         }
     }

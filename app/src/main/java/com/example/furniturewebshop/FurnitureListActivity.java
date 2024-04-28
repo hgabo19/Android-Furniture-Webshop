@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -49,9 +50,10 @@ public class FurnitureListActivity extends AppCompatActivity {
     private ArrayList<FurnitureItem> furnitureList;
     private FurnitureItemAdapter furnitureAdapter;
     private int gridNum = 2;
+
     private FrameLayout circle;
     private int cartItems = 0;
-
+    private TextView countTextView;
     private FirebaseFirestore mFirestore;
     private CollectionReference mItems;
     private CollectionReference mCartItems;
@@ -91,7 +93,6 @@ public class FurnitureListActivity extends AppCompatActivity {
         mFirestore = FirebaseFirestore.getInstance();
         mItems = mFirestore.collection("Items");
         mCartItems = mFirestore.collection("CartItems");
-        fireAuth = FirebaseAuth.getInstance();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -105,7 +106,7 @@ public class FurnitureListActivity extends AppCompatActivity {
 
     private void queryData(){
         furnitureList.clear();
-        mItems.orderBy("price", Query.Direction.ASCENDING).limit(5).get().addOnSuccessListener(queryDocumentSnapshots -> {
+        mItems.orderBy("price", Query.Direction.ASCENDING).limit(10).get().addOnSuccessListener(queryDocumentSnapshots -> {
             for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                 FurnitureItem item = document.toObject(FurnitureItem.class);
                 item.setId(document.getId());
@@ -117,6 +118,7 @@ public class FurnitureListActivity extends AppCompatActivity {
             }
             furnitureAdapter.notifyDataSetChanged();
         });
+        Query cartItemsQuery = mCartItems.whereEqualTo("userId", user.getUid());
     }
 
     private void initalizeData() {
@@ -166,35 +168,40 @@ public class FurnitureListActivity extends AppCompatActivity {
           return true;
         }
         else if (item.getItemId() == R.id.logout_button){
-            Log.d("Activity", "Logout clicked");
-            FirebaseAuth.getInstance().signOut();
-            finish();
-            return true;
+            if(!user.isAnonymous()){
+                Log.d("Activity", "Logout clicked");
+                FirebaseAuth.getInstance().signOut();
+                finish();
+                return true;
+            } else {
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                return true;
+            }
         }
-        else if (item.getItemId() == R.id.settings_button){
-            Log.d("Activity", "Settings clicked");
-            return true;
-        } else {
+        else {
             return super.onOptionsItemSelected(item);
         }
     }
 
     public void deleteFromCart(FurnitureItem item){
-        DocumentReference ref = mItems.document(item._getId());
-        ref.delete().addOnSuccessListener(success -> {
-            Toast.makeText(this, "Item deleted!", Toast.LENGTH_LONG).show();
-        }).addOnFailureListener(failure -> {
-            Toast.makeText(this, "Failed to delete item.. please try again!", Toast.LENGTH_LONG).show();
+        Query query = mCartItems.whereEqualTo("itemId", item._getId()).whereEqualTo("userId", user.getUid());
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                    mCartItems.document(document.getId()).delete();
+                    updateIconSubtraction();
+                }
+            }
         });
-
     }
 
     public void addToCart(FurnitureItem item){
         if (user != null && !user.isAnonymous()) {
             String itemId = item._getId();
             String userId = user.getUid();
-            Log.d(LOG_TAG, "item Id :" + itemId);
-            Log.d(LOG_TAG, "User Id :" + userId);
 
             Query query = mCartItems.whereEqualTo("itemId", itemId).whereEqualTo("userId", userId);
             query.get().addOnSuccessListener(queryDocumentSnapshots -> {
@@ -220,46 +227,16 @@ public class FurnitureListActivity extends AppCompatActivity {
                     CartItem cartItem = new CartItem(itemId, userId, 1);
                     mCartItems.add(cartItem)
                             .addOnSuccessListener(documentReference -> {
-                                // Item added successfully
+                                // item added successfully
                                 updateIconAddition();
                             })
                             .addOnFailureListener(e -> {
-                                // Handle failure
                                 Log.e(LOG_TAG, "Error adding item to cart", e);
                             });
                 }
             }).addOnFailureListener(e -> {
-                // Handle failure
                 Log.e(LOG_TAG, "Error getting document reference", e);
             });
-
-
-//            mCartItems.whereEqualTo("itemId", itemId).whereEqualTo("userId", userId)
-//                    .get().addOnCompleteListener(task -> {
-//                        // update item
-//                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-//                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
-//                            int currentCartCount = document.getLong("cartCount").intValue() + 1;
-//                            mCartItems.document(document.getId()).update("cartCount", currentCartCount)
-//                                    .addOnCompleteListener(updateTask -> {
-//                                        if (updateTask.isSuccessful()) {
-//                                            updateIconAddition();
-//                                        } else {
-//                                            // Handle update errors
-//                                            Log.w("Firestore", "Update failed.", updateTask.getException());
-//                                        }
-//                            });
-//                        }
-////                         add new item
-//                        else if(task.isSuccessful() && task.getResult().isEmpty()) {
-//                            CartItem cartItem = new CartItem(item._getId(), user.getUid(), 1);
-//                            mCartItems.add(cartItem);
-//                        }
-//                    });
-//        mItems.document(item._getId()).update("cartCount", item.getCartCount() + 1)
-//                .addOnFailureListener(failure -> {
-//                    Toast.makeText(this, "Failed to add item to cart.", Toast.LENGTH_LONG).show();
-//                });
         } else {
             Toast.makeText(this, "Please login to add items to your cart!", Toast.LENGTH_LONG).show();
         }
@@ -270,6 +247,7 @@ public class FurnitureListActivity extends AppCompatActivity {
         final MenuItem menuItem = menu.findItem(R.id.cart);
         FrameLayout rootview = (FrameLayout) menuItem.getActionView();
         circle = (FrameLayout) rootview.findViewById(R.id.red_circle);
+        countTextView = (TextView) rootview.findViewById(R.id.cart_count_textview);
         rootview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -284,7 +262,10 @@ public class FurnitureListActivity extends AppCompatActivity {
         cartItems = cartItems + 1;
         if(cartItems > 0) {
             circle.setVisibility(View.VISIBLE);
+            countTextView.setText(String.valueOf(cartItems));
             setAlarmManager();
+        } else {
+            countTextView.setText("");
         }
     }
 
@@ -292,7 +273,10 @@ public class FurnitureListActivity extends AppCompatActivity {
         cartItems = cartItems - 1;
         if(cartItems <= 0) {
             circle.setVisibility(View.GONE);
+            countTextView.setText("");
             mAlarmManager.cancel(mPendingIntent);
+        } else {
+            countTextView.setText(String.valueOf(cartItems));
         }
     }
 
@@ -308,5 +292,11 @@ public class FurnitureListActivity extends AppCompatActivity {
                 triggerTime,
                 repeatInterval,
                 mPendingIntent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mAlarmManager.cancel(mPendingIntent);
     }
 }

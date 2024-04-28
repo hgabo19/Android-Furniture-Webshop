@@ -6,7 +6,6 @@
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp"
     app:cardUseCompatPadding="true"
-    android:background="@color/lightgray"
     >
 
     <LinearLayout
@@ -21,8 +20,6 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"/>
-
-<!--            android:src="@drawableion="@string/product_image" />-->
 
         <TextView
             android:id="@+id/product_name"
@@ -64,7 +61,6 @@
                 android:textSize="18sp"
                 />
         </LinearLayout>
-
         <Button
             android:id="@+id/addToCart"
             android:layout_width="wrap_content"

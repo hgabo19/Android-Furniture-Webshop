@@ -16,12 +16,6 @@
         app:actionLayout="@layout/custom_menu_item"
         />
     <item
-        android:id="@+id/settings_button"
-        android:title="@string/settings"
-        app:showAsAction="never"
-        app:actionViewClass="com.google.android.material.search.SearchView"
-        />
-    <item
         android:id="@+id/logout_button"
         android:title="@string/logout"
         app:showAsAction="never"
