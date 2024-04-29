@@ -3,8 +3,10 @@ package com.example.furniturewebshop;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -27,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFERENCES_KEY = MainActivity.class.getPackage().toString();
     EditText usernameET;
     EditText passwordET;
+    Button loginBtn;
+    Button registerBtn;
+    Button guestBtn;
     private FirebaseAuth fireAuth;
 
     private SharedPreferences preferences;
@@ -43,6 +48,19 @@ public class MainActivity extends AppCompatActivity {
 
         usernameET = findViewById(R.id.EditTextUsername);
         passwordET = findViewById(R.id.EditTextPassword);
+        loginBtn = findViewById(R.id.loginButton);
+        registerBtn = findViewById(R.id.registerButton);
+        guestBtn = findViewById(R.id.guestLoginButton);
+
+        Animation slideInAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
+        Animation fadeInAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+
+        usernameET.setAnimation(slideInAnimation);
+        passwordET.setAnimation(slideInAnimation);
+        loginBtn.setAnimation(fadeInAnimation);
+        registerBtn.setAnimation(fadeInAnimation);
+        guestBtn.setAnimation(fadeInAnimation);
+
 
         preferences = getSharedPreferences(PREFERENCES_KEY, MODE_PRIVATE);
         fireAuth = FirebaseAuth.getInstance();
@@ -54,6 +72,11 @@ public class MainActivity extends AppCompatActivity {
     public void login(View view) {
         String username = usernameET.getText().toString();
         String password = passwordET.getText().toString();
+
+        if(username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(MainActivity.this, "Please provide your email and password!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         fireAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override

@@ -94,14 +94,17 @@ public class FurnitureListActivity extends AppCompatActivity {
         mItems = mFirestore.collection("Items");
         mCartItems = mFirestore.collection("CartItems");
 
+        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         queryData();
-
-//        mNotifyHandler = new NotificationHandler(this);
-        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
     }
 
     private void queryData(){
@@ -281,7 +284,7 @@ public class FurnitureListActivity extends AppCompatActivity {
     }
 
     private void setAlarmManager (){
-        long repeatInterval = 40000;
+        long repeatInterval = 60000 * 5;
         long triggerTime = SystemClock.elapsedRealtime() + repeatInterval;
 
         Intent intent = new Intent(this, AlarmReceiver.class);
@@ -294,9 +297,4 @@ public class FurnitureListActivity extends AppCompatActivity {
                 mPendingIntent);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mAlarmManager.cancel(mPendingIntent);
-    }
 }

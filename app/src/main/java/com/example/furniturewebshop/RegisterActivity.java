@@ -21,7 +21,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = RegisterActivity.class.getName();
-    private static final int SECRET_KEY = 85;
     private FirebaseAuth fireAuth;
 
     EditText usernameET;
@@ -45,9 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
         passwordET = findViewById(R.id.passwordEditText);
         passwordConfirmET = findViewById(R.id.passwordConfirmEditText);
         fireAuth = FirebaseAuth.getInstance();
-        // Get the intent
-        // Bundle bundle = getIntent().getExtras();
-        // bundle.getInt("SECRET_KEY", 0);
+
         int secret_key = getIntent().getIntExtra("SECRET_KEY", 0);
         if(secret_key != 69) {
             finish();
@@ -60,10 +57,13 @@ public class RegisterActivity extends AppCompatActivity {
         String password = passwordET.getText().toString();
         String passwordConfirm = passwordConfirmET.getText().toString();
 
-        if(!password.equals(passwordConfirm)) {
+        if(username.isEmpty() || password.isEmpty() || email.isEmpty() || passwordConfirm.isEmpty()) {
+            Toast.makeText(RegisterActivity.this, "Please fill out everything!", Toast.LENGTH_SHORT).show();
+            return;
+        } else if(!password.equals(passwordConfirm)) {
             Log.e(TAG, "Password confirmation error: they don't match");
-        } else {
-            Log.i(TAG, "Welcome new member: " + username + ", email: " + email);
+            Toast.makeText(RegisterActivity.this, "Passwords don't match!", Toast.LENGTH_SHORT).show();
+            return;
         }
         fireAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
