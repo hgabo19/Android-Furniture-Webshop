@@ -188,14 +188,24 @@ public class FurnitureListActivity extends AppCompatActivity {
     }
 
     public void deleteFromCart(FurnitureItem item){
+
         Query query = mCartItems.whereEqualTo("itemId", item._getId()).whereEqualTo("userId", user.getUid());
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful() && !task.getResult().isEmpty()) {
                     DocumentSnapshot document = task.getResult().getDocuments().get(0);
+
+                    int cartCount = document.getLong("cartCount").intValue();
+
                     mCartItems.document(document.getId()).delete();
-                    updateIconSubtraction();
+
+                    updateIconSubtraction(cartCount);
+                } else if(user.isAnonymous()) {
+                    Toast.makeText(FurnitureListActivity.this, "Please login first!", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(FurnitureListActivity.this, "You need to add this item to your cart first!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -210,27 +220,28 @@ public class FurnitureListActivity extends AppCompatActivity {
             query.get().addOnSuccessListener(queryDocumentSnapshots -> {
                 if (!queryDocumentSnapshots.isEmpty()) {
                     DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
-                    // Run transaction using document reference
+
                     mFirestore.runTransaction(transaction -> {
                         DocumentSnapshot snapshot = transaction.get(document.getReference());
                         if (snapshot.exists()) {
                             int currentCartCount = snapshot.getLong("cartCount").intValue() + 1;
                             transaction.update(snapshot.getReference(), "cartCount", currentCartCount);
-                            updateIconAddition(); // Call after successful update
+
                         }
                         return null;
                     }).addOnCompleteListener(transactionTask -> {
-                        if (!transactionTask.isSuccessful()) {
-                            // Handle transaction errors
+                        if(transactionTask.isSuccessful()) {
+                            updateIconAddition();
+                        }
+                        else {
                             Log.w("Firestore", "Transaction failed.", transactionTask.getException());
                         }
                     });
                 } else {
-                    // If document doesn't exist, create a new one
+
                     CartItem cartItem = new CartItem(itemId, userId, 1);
                     mCartItems.add(cartItem)
                             .addOnSuccessListener(documentReference -> {
-                                // item added successfully
                                 updateIconAddition();
                             })
                             .addOnFailureListener(e -> {
@@ -263,6 +274,7 @@ public class FurnitureListActivity extends AppCompatActivity {
 
     public void updateIconAddition() {
         cartItems = cartItems + 1;
+        Log.d(LOG_TAG, "cartItems: "+ cartItems);
         if(cartItems > 0) {
             circle.setVisibility(View.VISIBLE);
             countTextView.setText(String.valueOf(cartItems));
@@ -272,8 +284,8 @@ public class FurnitureListActivity extends AppCompatActivity {
         }
     }
 
-    public void updateIconSubtraction() {
-        cartItems = cartItems - 1;
+    public void updateIconSubtraction(int cartCount) {
+        cartItems = cartItems - cartCount;
         if(cartItems <= 0) {
             circle.setVisibility(View.GONE);
             countTextView.setText("");
