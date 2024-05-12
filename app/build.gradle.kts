@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.androidApplication)
     id("com.google.gms.google-services")
@@ -26,6 +28,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    packaging {
+        // Pick the first occurrence (or 'exclude' the unwanted ones)
+        // exclude 'C:\Users\huszk\.gradle\caches\transforms-3\4a042dae7c98fd5ef7245dd08841b1aa\transformed\multidex-2.0.0\jars\classes.jar'
+        resources {
+            excludes += "androidsupportmultidexversion.txt"
+        }
     }
 }
 
